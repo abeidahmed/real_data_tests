@@ -1,4 +1,10 @@
 ## [Unreleased]
+### Fixed
+- `PgDumpGenerator` now quotes table and column names in generated `INSERT` statements
+  - Previously identifiers were written unquoted, so a reserved-word column (e.g. `default`, `order`, `user`) produced `PG::SyntaxError` on load, and mixed-case table names failed to resolve
+  - Identifiers are quoted with the connection's `quote_table_name` / `quote_column_name`; dumps generated before this fix load unchanged
+
+## [0.5.0] - 2026-07-28
 ### Added
 - **Load strategies**: SQL dump loading is now pluggable via `RealDataTests::LoadStrategies`
   - `LoadStrategies::Native` — loads on the ActiveRecord connection (default only via `load_real_test_data_native`)
@@ -11,11 +17,6 @@
   - `load_real_test_data` behavior is unchanged (psql shell-out, `LoadStrategies::Psql` default); pass `strategy: LoadStrategies::Native` to load transactionally on the ActiveRecord connection so data participates in the caller's transaction (e.g. DatabaseCleaner `:transaction` strategy) and rolls back with it
   - Native loader: dumps without `COPY ... FROM stdin` blocks are executed as a single multi-statement `execute` (one server round-trip) instead of parsed and executed block-by-block; block parsing is kept only as the COPY fallback
   - Native loader: `COPY ... FROM stdin` blocks are streamed through `raw_connection.copy_data` on the same libpq session, so COPY data is transactional too (previously broken — the whole COPY block went through `execute`)
-
-### Fixed
-- `PgDumpGenerator` now quotes table and column names in generated `INSERT` statements
-  - Previously identifiers were written unquoted, so a reserved-word column (e.g. `default`, `order`, `user`) produced `PG::SyntaxError` on load, and mixed-case table names failed to resolve
-  - Identifiers are quoted with the connection's `quote_table_name` / `quote_column_name`; dumps generated before this fix load unchanged
 
 ## [0.4.1] - 2026-04-09
 ### Fixed
