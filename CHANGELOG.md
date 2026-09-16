@@ -1,4 +1,4 @@
-## [Unreleased]
+## [0.5.1] - 2026-09-16
 ### Fixed
 - `PgDumpGenerator` now quotes table and column names in generated `INSERT` statements
   - Previously identifiers were written unquoted, so a reserved-word column (e.g. `default`, `order`, `user`) produced `PG::SyntaxError` on load, and mixed-case table names failed to resolve
